@@ -168,12 +168,6 @@ interface MessageComponentProps {
     thinkingTokens: { start: string; end: string };
 }
 
-interface CodeProps {
-    node?: any;
-    inline?: boolean;
-    className?: string;
-    children?: React.ReactNode;
-}
 
 const MessageComponent: React.FC<MessageComponentProps> = ({
     message,
@@ -196,7 +190,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeKatex]}
                 components={{
-                    code({ node, className, children, ...props }: any) {
+                    code({ className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || '');
                         const key = `${messageKey}-${children}`;
 

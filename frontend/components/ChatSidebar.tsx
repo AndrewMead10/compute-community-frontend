@@ -1,19 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, MessageSquare, Trash2, Settings } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
+import { Plus, MessageSquare, Trash2, Settings, Sun, Moon } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarProvider,
-  SidebarTrigger,
+  SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { chatHistoryDB, ChatHistory } from '@/lib/indexdb';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 
 interface ChatSidebarProps {
   onNewChat: () => void;
@@ -23,8 +22,7 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSidebarProps) {
   const [chats, setChats] = useState<ChatHistory[]>([]);
-  const router = useRouter();
-  const pathname = usePathname();
+  const { setTheme, theme } = useTheme();
 
   useEffect(() => {
     loadChats();
@@ -49,23 +47,18 @@ export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSide
 
   return (
     <Sidebar className="border-r">
-      <SidebarHeader className="border-b px-4 py-2 flex justify-between items-center">
+      <SidebarHeader className="border-b p-2">
         <Button 
           onClick={onNewChat} 
-          className="justify-start"
-          variant="ghost"
+          className="w-full justify-start"
+          variant="default"
         >
           <Plus className="mr-2 h-4 w-4" />
           New Chat
         </Button>
-        <Link href="/settings">
-          <Button variant="ghost" size="icon">
-            <Settings className="h-4 w-4" />
-          </Button>
-        </Link>
       </SidebarHeader>
       <SidebarContent>
-        <ScrollArea className="h-[calc(100vh-5rem)]">
+        <ScrollArea className="h-[calc(100vh-13rem)]">
           <div className="space-y-1 p-2">
             {chats.map((chat) => (
               <Button
@@ -89,6 +82,23 @@ export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSide
           </div>
         </ScrollArea>
       </SidebarContent>
+      <SidebarFooter className="border-t space-y-2 p-2">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        >
+          <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          Toggle theme
+        </Button>
+        <Link href="/settings" className="w-full">
+          <Button variant="ghost" className="w-full justify-start">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Button>
+        </Link>
+      </SidebarFooter>
     </Sidebar>
   );
 } 
