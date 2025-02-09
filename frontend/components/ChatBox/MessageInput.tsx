@@ -40,7 +40,6 @@ type MessageInputProps =
 
 export function MessageInput({
     placeholder = 'Ask AI...',
-    className,
     onKeyDown: onKeyDownProp,
     submitOnEnter = true,
     stop,
@@ -165,9 +164,6 @@ export function MessageInput({
     };
 
     const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-
-    const showFileList =
-        props.allowAttachments && props.files && props.files.length > 0;
 
     const calculateRows = (text: string) => {
         const lineBreaks = (text.match(/\n/g) || []).length;

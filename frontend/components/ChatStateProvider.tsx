@@ -105,12 +105,11 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
       };
 
       await chatHistoryDB.saveChat(chatHistory);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error getting AI response:', error);
-      // Add error message to chat
       const errorMessage: Message = {
         role: 'assistant',
-        content: `Error: ${error.message || 'Unknown error occurred'}. Please check your API settings.`,
+        content: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}. Please check your API settings.`,
       };
       setMessages([...updatedMessages, errorMessage]);
     } finally {

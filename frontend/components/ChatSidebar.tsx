@@ -8,8 +8,6 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarFooter,
-  SidebarProvider,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -25,8 +23,6 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSidebarProps) {
   const [chats, setChats] = useState<ChatHistory[]>([]);
-  const router = useRouter();
-  const pathname = usePathname();
   const { setTheme, theme } = useTheme();
 
   useEffect(() => {
