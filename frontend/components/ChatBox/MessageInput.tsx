@@ -4,7 +4,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUp, FileIcon, Paperclip, Square, X, Globe, Mic } from 'lucide-react';
 import { omit } from 'remeda';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
     Tooltip,
