@@ -7,6 +7,7 @@ import { chatHistoryDB, ChatHistory } from '@/lib/indexdb';
 import { ChatSidebar } from '@/components/ChatSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { getOpenRouterStreamingCompletion } from '@/lib/openrouter';
+import { useHostConfig } from '@/hooks/useHostConfig';
 
 interface ChatContextType {
   messages: Message[];
@@ -31,6 +32,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | undefined>();
   const [isGenerating, setIsGenerating] = useState(false);
+  const hostConfig = useHostConfig();
 
   useEffect(() => {
     // Load the most recent chat if exists
@@ -76,18 +78,25 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
       setMessages([...updatedMessages, assistantMessage]);
 
       let streamedContent = '';
-      await getOpenRouterStreamingCompletion(updatedMessages, (token) => {
-        streamedContent += token;
-        setMessages(messages => {
-          const lastMessage = messages[messages.length - 1];
-          const updatedLastMessage: Message = {
-            ...lastMessage,
-            role: 'assistant',
-            content: streamedContent,
-          };
-          return [...messages.slice(0, -1), updatedLastMessage];
-        });
-      });
+      await getOpenRouterStreamingCompletion(
+        updatedMessages,
+        (token) => {
+          streamedContent += token;
+          setMessages(messages => {
+            const lastMessage = messages[messages.length - 1];
+            const updatedLastMessage: Message = {
+              ...lastMessage,
+              role: 'assistant',
+              content: streamedContent,
+            };
+            return [...messages.slice(0, -1), updatedLastMessage];
+          });
+        },
+        {
+          baseUrl: hostConfig.baseUrl,
+          apiKey: hostConfig.apiKey,
+        }
+      );
 
       // Save to IndexDB
       const chatId = currentChatId || uuidv4();

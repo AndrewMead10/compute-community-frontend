@@ -11,9 +11,26 @@ interface OpenRouterResponse {
   }[];
 }
 
-export async function getOpenRouterCompletion(messages: Message[]): Promise<string> {
-  const baseUrl = localStorage.getItem('openrouter_base_url') || 'https://openrouter.ai/api/v1';
-  const apiKey = localStorage.getItem('openrouter_api_key');
+interface OpenRouterConfig {
+  baseUrl: string;
+  apiKey: string | null;
+}
+
+export async function checkHostHealth(baseUrl: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${baseUrl}/health`);
+    return response.status === 200;
+  } catch (error) {
+    console.error('Health check failed:', error);
+    return false;
+  }
+}
+
+export async function getOpenRouterCompletion(
+  messages: Message[],
+  config: OpenRouterConfig
+): Promise<string> {
+  const { baseUrl, apiKey } = config;
 
   if (!apiKey) {
     throw new Error('OpenRouter API key not found. Please configure it in settings.');
@@ -26,10 +43,10 @@ export async function getOpenRouterCompletion(messages: Message[]): Promise<stri
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
         'HTTP-Referer': window.location.origin,
-        'X-Title': 'Compute Community Chat', // Replace with your app name
+        'X-Title': 'Compute Community Chat',
       },
       body: JSON.stringify({
-        model: 'AMead10/SuperNova-Medius-AWQ', // You can make this configurable
+        model: 'AMead10/SuperNova-Medius-AWQ',
         messages: messages.map(msg => ({
           role: msg.role,
           content: msg.content
@@ -52,10 +69,10 @@ export async function getOpenRouterCompletion(messages: Message[]): Promise<stri
 
 export async function getOpenRouterStreamingCompletion(
   messages: Message[],
-  onToken: (token: string) => void
+  onToken: (token: string) => void,
+  config: OpenRouterConfig
 ): Promise<void> {
-  const baseUrl = localStorage.getItem('openrouter_base_url') || 'https://openrouter.ai/api/v1';
-  const apiKey = localStorage.getItem('openrouter_api_key');
+  const { baseUrl, apiKey } = config;
 
   if (!apiKey) {
     throw new Error('OpenRouter API key not found. Please configure it in settings.');
