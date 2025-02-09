@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Message, ChatBoxProps } from './types';
 import { cn } from '@/lib/utils';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import type { StylesType } from 'react-syntax-highlighter/dist/esm/types';
 import { vscDarkPlus, prism } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -198,7 +199,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                             <div className="relative">
                                 <SyntaxHighlighter
                                     language={match?.[1] || 'text'}
-                                    style={theme === 'dark' ? vscDarkPlus : prism}
+                                    style={theme === 'dark' ? vscDarkPlus : prism as StylesType}
                                     PreTag="div"
                                     className="rounded-lg"
                                     {...props}
