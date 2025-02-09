@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { Plus, MessageSquare, Trash2, Settings, Sun, Moon } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
 import {
   Sidebar,
   SidebarContent,
