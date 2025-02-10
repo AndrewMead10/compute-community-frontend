@@ -94,7 +94,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
         },
         {
           baseUrl: hostConfig.baseUrl,
-          apiKey: hostConfig.apiKey,
+          apiKey: hostConfig.apiKey || null,
           modelName: hostConfig.modelName || 'AMead10/SuperNova-Medius-AWQ',
         }
       );

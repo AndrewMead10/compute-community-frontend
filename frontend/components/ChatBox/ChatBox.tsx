@@ -198,13 +198,11 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                             <div className="relative">
                                 <SyntaxHighlighter
                                     language={match?.[1] || 'text'}
-                                    style={theme === 'dark' ? vscDarkPlus : prism}
                                     PreTag="div"
                                     className="rounded-lg"
-                                    {...props}
-                                >
-                                    {String(children).replace(/\n$/, '')}
-                                </SyntaxHighlighter>
+                                    style={theme === 'dark' ? vscDarkPlus : prism}
+                                    children={String(children).replace(/\n$/, '')}
+                                />
                                 <button
                                     onClick={() => onCopy(String(children), key)}
                                     className="absolute top-2 right-2 p-1 rounded bg-primary/10 hover:bg-primary/20"
