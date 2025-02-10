@@ -14,6 +14,7 @@ interface OpenRouterResponse {
 interface OpenRouterConfig {
   baseUrl: string;
   apiKey: string | null;
+  modelName: string;
 }
 
 export async function checkHostHealth(baseUrl: string): Promise<boolean> {
@@ -30,7 +31,7 @@ export async function getOpenRouterCompletion(
   messages: Message[],
   config: OpenRouterConfig
 ): Promise<string> {
-  const { baseUrl, apiKey } = config;
+  const { baseUrl, apiKey, modelName } = config;
 
   if (!apiKey) {
     throw new Error('OpenRouter API key not found. Please configure it in settings.');
@@ -46,7 +47,7 @@ export async function getOpenRouterCompletion(
         'X-Title': 'Compute Community Chat',
       },
       body: JSON.stringify({
-        model: 'AMead10/SuperNova-Medius-AWQ',
+        model: modelName,
         messages: messages.map(msg => ({
           role: msg.role,
           content: msg.content
@@ -72,7 +73,7 @@ export async function getOpenRouterStreamingCompletion(
   onToken: (token: string) => void,
   config: OpenRouterConfig
 ): Promise<void> {
-  const { baseUrl, apiKey } = config;
+  const { baseUrl, apiKey, modelName } = config;
 
   if (!apiKey) {
     throw new Error('OpenRouter API key not found. Please configure it in settings.');
@@ -88,7 +89,7 @@ export async function getOpenRouterStreamingCompletion(
         'X-Title': 'Compute Community Chat',
       },
       body: JSON.stringify({
-        model: 'AMead10/SuperNova-Medius-AWQ',
+        model: modelName,
         messages: messages.map(msg => ({
           role: msg.role,
           content: msg.content

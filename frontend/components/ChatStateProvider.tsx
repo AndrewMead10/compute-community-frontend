@@ -95,6 +95,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
         {
           baseUrl: hostConfig.baseUrl,
           apiKey: hostConfig.apiKey,
+          modelName: hostConfig.modelName || 'AMead10/SuperNova-Medius-AWQ',
         }
       );
 

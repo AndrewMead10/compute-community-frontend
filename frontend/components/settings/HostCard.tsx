@@ -53,9 +53,10 @@ export function HostCard({ host, onDelete, onSelect, isSelected, isRunning }: Ho
                 )}
               </div>
             </div>
-            <div className="text-sm text-muted-foreground space-x-4">
-              <span>{host.baseUrl}</span>
-              <span>API Key: {maskedApiKey}</span>
+            <div className="text-sm text-muted-foreground mt-1">
+              <div>Base URL: {host.baseUrl}</div>
+              <div>API Key: {maskedApiKey}</div>
+              {host.modelName && <div>Model: {host.modelName}</div>}
             </div>
           </div>
           <Button

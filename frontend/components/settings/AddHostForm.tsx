@@ -13,23 +13,25 @@ export function AddHostForm({ onAdd }: AddHostFormProps) {
   const [name, setName] = useState('');
   const [baseUrl, setBaseUrl] = useState('https://openrouter.ai/api/v1');
   const [apiKey, setApiKey] = useState('');
+  const [modelName, setModelName] = useState('AMead10/SuperNova-Medius-AWQ');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !baseUrl || !apiKey) return;
 
-    onAdd({ name, baseUrl, apiKey });
+    onAdd({ name, baseUrl, apiKey, modelName });
     
     // Reset form
     setName('');
     setApiKey('');
     setBaseUrl('https://openrouter.ai/api/v1');
+    setModelName('AMead10/SuperNova-Medius-AWQ');
   };
 
   return (
     <Card className="mb-4">
       <CardContent className="pt-4">
-        <form onSubmit={handleSubmit} className="grid grid-cols-[1fr,2fr,2fr,auto] gap-3 items-end">
+        <form onSubmit={handleSubmit} className="grid grid-cols-[1fr,2fr,2fr,1fr,auto] gap-3 items-end">
           <div>
             <Label htmlFor="name" className="text-sm">Name</Label>
             <Input
@@ -64,7 +66,17 @@ export function AddHostForm({ onAdd }: AddHostFormProps) {
               className="h-9"
             />
           </div>
-          <Button type="submit" className="h-9">Add</Button>
+          <div>
+            <Label htmlFor="model-name" className="text-sm">Model</Label>
+            <Input
+              id="model-name"
+              value={modelName}
+              onChange={(e) => setModelName(e.target.value)}
+              placeholder="Model name"
+              className="h-9"
+            />
+          </div>
+          <Button type="submit" size="sm" className="h-9">Add Host</Button>
         </form>
       </CardContent>
     </Card>

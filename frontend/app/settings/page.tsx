@@ -44,6 +44,7 @@ export default function SettingsPage() {
           name: 'Default Host',
           baseUrl: oldBaseUrl,
           apiKey: oldApiKey,
+          modelName: 'AMead10/SuperNova-Medius-AWQ',
         };
         setHosts([migratedHost]);
         setSelectedHostId(migratedHost.id);
