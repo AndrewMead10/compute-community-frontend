@@ -1,6 +1,8 @@
 {
+    "name": "compute-community",
+    "compatibility_date": "2024-07-29",
     "compatibility_flags": [
         "nodejs_compat"
     ],
-    "compatibility_date": "2024-09-23"
+    "pages_build_output_dir": ".vercel/output/static"
 }
