@@ -31,7 +31,7 @@ export function ChatSidebar({
 
   useEffect(() => {
     loadChats();
-  }, []);
+  }, [currentChatId]);
 
   const loadChats = async () => {
     const allChats = await chatHistoryDB.getAllChats();
@@ -44,9 +44,10 @@ export function ChatSidebar({
     e.stopPropagation();
     e.preventDefault();
     await chatHistoryDB.deleteChat(id);
-    await loadChats();
     if (id === currentChatId) {
       onNewChat();
+    } else {
+      loadChats();
     }
   };
 
