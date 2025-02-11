@@ -196,6 +196,7 @@ export default function Home() {
 
   // Add wrapper for handleNewChat
   const handleNewChatWithSettingsClose = () => {
+    setShowSettings(false);
     handleNewChat();
   };
 

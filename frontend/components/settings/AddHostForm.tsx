@@ -87,7 +87,7 @@ export function AddHostForm({ onAdd, hostToEdit, onUpdate, onCancel }: AddHostFo
               id="base-url"
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
-              placeholder="OpenRouter base URL"
+              placeholder="Base URL"
               required
             />
           </div>
@@ -98,7 +98,7 @@ export function AddHostForm({ onAdd, hostToEdit, onUpdate, onCancel }: AddHostFo
               id="api-key"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="OpenRouter API key"
+              placeholder="API key"
               required
             />
           </div>
