@@ -16,7 +16,7 @@ interface AddHostFormProps {
 
 export function AddHostForm({ onAdd, hostToEdit, onUpdate, onCancel }: AddHostFormProps) {
   const [name, setName] = useState(hostToEdit?.name || '');
-  const [baseUrl, setBaseUrl] = useState(hostToEdit?.baseUrl || 'https://openrouter.ai/api/v1');
+  const [baseUrl, setBaseUrl] = useState(hostToEdit?.baseUrl || '');
   const [apiKey, setApiKey] = useState(hostToEdit?.apiKey || '');
   const [modelName, setModelName] = useState(hostToEdit?.modelName || '');
   const [availableModels, setAvailableModels] = useState<OpenRouterModel[]>([]);
@@ -61,7 +61,7 @@ export function AddHostForm({ onAdd, hostToEdit, onUpdate, onCancel }: AddHostFo
     if (!hostToEdit) {
       setName('');
       setApiKey('');
-      setBaseUrl('https://openrouter.ai/api/v1');
+      setBaseUrl('');
       setModelName('');
     }
   };
