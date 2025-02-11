@@ -93,7 +93,7 @@ export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSide
           <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           Toggle theme
         </Button>
-        <Link href="/settings" className="w-full">
+        <Link href="/settings" replace className="w-full">
           <Button variant="ghost" className="w-full justify-start">
             <Settings className="mr-2 h-4 w-4" />
             Settings

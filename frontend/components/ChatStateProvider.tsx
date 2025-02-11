@@ -8,6 +8,7 @@ import { ChatSidebar } from '@/components/ChatSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { getOpenRouterStreamingCompletion } from '@/lib/openrouter';
 import { useHostConfig } from '@/hooks/useHostConfig';
+import { useRouter } from 'next/navigation';
 
 interface ChatContextType {
   messages: Message[];
@@ -33,6 +34,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
   const [currentChatId, setCurrentChatId] = useState<string | undefined>();
   const [isGenerating, setIsGenerating] = useState(false);
   const hostConfig = useHostConfig();
+  const router = useRouter();
 
   useEffect(() => {
     // Load the most recent chat if exists
@@ -50,11 +52,13 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const handleNewChat = () => {
+    router.replace('/');
     setCurrentChatId(undefined);
     setMessages([]);
   };
 
   const handleLoadChat = async (chatId: string) => {
+    router.replace('/');
     const chats = await chatHistoryDB.getAllChats();
     const chat = chats.find(c => c.id === chatId);
     if (chat) {
