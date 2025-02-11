@@ -95,8 +95,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     };
 
     const containerClasses = cn(
-        'flex flex-col w-full max-w-4xl mx-auto bg-background',
-        isNewChat ? 'h-screen justify-center' : 'h-full',
+        'flex flex-col w-full h-full overflow-hidden',
         className
     );
 
@@ -120,38 +119,44 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                     className={messageContainerClasses}
                     style={{ overflowY: 'auto', maxHeight: '100%' }}
                 >
-                    {messages.map((message, index) => (
-                        <MessageComponent
-                            key={index}
-                            message={message}
-                            onCopy={handleCopy}
-                            copiedStates={copiedStates}
-                            onRegenerateMessage={onRegenerateMessage}
-                            onLike={onLike}
-                            onDislike={onDislike}
-                            generateAudio={generateAudio}
-                            modelName={modelName}
-                            thinkingTokens={thinkingTokens}
-                        />
-                    ))}
+                    <div className="max-w-4xl mx-auto">
+                        {messages.map((message, index) => (
+                            <MessageComponent
+                                key={index}
+                                message={message}
+                                onCopy={handleCopy}
+                                copiedStates={copiedStates}
+                                onRegenerateMessage={onRegenerateMessage}
+                                onLike={onLike}
+                                onDislike={onDislike}
+                                generateAudio={generateAudio}
+                                modelName={modelName}
+                                thinkingTokens={thinkingTokens}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 border-t border-border">
-                <MessageInput
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    isGenerating={isGenerating}
-                    allowAttachments={allowFileUpload}
-                    files={files}
-                    setFiles={setFiles}
-                    placeholder="Type a message..."
-                    webSearchEnabled={webSearchEnabled}
-                    onToggleWebSearch={onToggleWebSearch}
-                    allowAudioInput={allowAudioInput}
-                    onAudioInput={onAudioInput}
-                />
-            </form>
+            <div className="">
+                <div className="max-w-4xl mx-auto">
+                    <form onSubmit={handleSubmit} className="p-4">
+                        <MessageInput
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            isGenerating={isGenerating}
+                            allowAttachments={allowFileUpload}
+                            files={files}
+                            setFiles={setFiles}
+                            placeholder="Type a message..."
+                            webSearchEnabled={webSearchEnabled}
+                            onToggleWebSearch={onToggleWebSearch}
+                            allowAudioInput={allowAudioInput}
+                            onAudioInput={onAudioInput}
+                        />
+                    </form>
+                </div>
+            </div>
         </div>
     );
 };

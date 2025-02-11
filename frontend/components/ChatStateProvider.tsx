@@ -4,8 +4,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Message } from '@/components/ChatBox/types';
 import { chatHistoryDB, ChatHistory } from '@/lib/indexdb';
-import { ChatSidebar } from '@/components/ChatSidebar';
-import { SidebarProvider } from '@/components/ui/sidebar';
 import { getOpenRouterStreamingCompletion } from '@/lib/openrouter';
 import { useHostConfig } from '@/hooks/useHostConfig';
 
@@ -39,7 +37,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
     const loadInitialChat = async () => {
       const chats = await chatHistoryDB.getAllChats();
       if (chats.length > 0) {
-        const mostRecent = chats.sort((a, b) => 
+        const mostRecent = chats.sort((a, b) =>
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         )[0];
         setCurrentChatId(mostRecent.id);
@@ -106,6 +104,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
       }
 
       const finalMessages = [...updatedMessages, { role: 'assistant' as const, content: streamedContent }];
+      setMessages(finalMessages);
       const chatHistory: ChatHistory = {
         id: chatId,
         title: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
@@ -138,14 +137,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ChatContext.Provider value={value}>
-      <SidebarProvider>
-        <ChatSidebar 
-          onNewChat={handleNewChat} 
-          currentChatId={currentChatId}
-          onSelectChat={handleLoadChat}
-        />
-        {children}
-      </SidebarProvider>
+      {children}
     </ChatContext.Provider>
   );
 } 

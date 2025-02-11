@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ChatStateProvider } from "@/components/ChatStateProvider";
 import { ThemeProvider } from "next-themes";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,9 +36,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ChatStateProvider>
-            {children}
-          </ChatStateProvider>
+          <SidebarProvider>
+            <ChatStateProvider>
+              {children}
+            </ChatStateProvider>
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>

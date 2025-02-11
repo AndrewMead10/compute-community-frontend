@@ -178,7 +178,7 @@ export function MessageInput({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <div className="relative rounded-xl border border-input bg-background focus-within:border-primary">
+            <div className="relative rounded-xl border border-background bg-secondary focus-within:border-primary">
                 <textarea
                     aria-label="Write your prompt here"
                     placeholder={placeholder}
@@ -193,7 +193,7 @@ export function MessageInput({
                 />
 
                 <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between gap-1 border-t border-input px-3 py-2">
+                    <div className="flex items-center justify-between gap-1 border-t border-background px-3 py-2">
                         <div className="flex items-center gap-2">
                             <TooltipProvider>
                                 {props.allowAttachments && (

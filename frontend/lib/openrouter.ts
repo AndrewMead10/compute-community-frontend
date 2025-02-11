@@ -17,6 +17,11 @@ interface OpenRouterConfig {
   modelName: string;
 }
 
+export interface OpenRouterModel {
+  id: string;
+  name: string;
+}
+
 export async function checkHostHealth(baseUrl: string): Promise<boolean> {
   try {
     const response = await fetch(`${baseUrl}/health`);
@@ -80,7 +85,7 @@ export async function getOpenRouterStreamingCompletion(
   }
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -137,5 +142,19 @@ export async function getOpenRouterStreamingCompletion(
   } catch (error) {
     console.error('Error calling OpenRouter:', error);
     throw error;
+  }
+}
+
+export async function getAvailableModels(baseUrl: string): Promise<OpenRouterModel[]> {
+  try {
+    const response = await fetch(`${baseUrl}/models`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch models');
+    }
+    const data = await response.json();
+    return data.models || [];
+  } catch (error) {
+    console.error('Error fetching models:', error);
+    return [];
   }
 } 

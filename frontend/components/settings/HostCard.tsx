@@ -1,4 +1,4 @@
-import { Trash2, Check } from 'lucide-react';
+import { Trash2, Check, Pencil } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HostConfiguration } from '@/types/settings';
@@ -8,16 +8,17 @@ interface HostCardProps {
   host: HostConfiguration;
   onDelete: (id: string) => void;
   onSelect: (id: string) => void;
+  onEdit: (host: HostConfiguration) => void;
   isSelected: boolean;
   isRunning: boolean | null;
 }
 
-export function HostCard({ host, onDelete, onSelect, isSelected, isRunning }: HostCardProps) {
+export function HostCard({ host, onDelete, onSelect, onEdit, isSelected, isRunning }: HostCardProps) {
   // Mask API key for display
   const maskedApiKey = '••••' + host.apiKey.slice(-4);
 
   return (
-    <Card 
+    <Card
       className={cn(
         "mb-2 cursor-pointer transition-colors",
         isSelected ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted"
@@ -36,10 +37,10 @@ export function HostCard({ host, onDelete, onSelect, isSelected, isRunning }: Ho
                   </span>
                 )}
                 {isRunning !== null && (
-                  <span 
+                  <span
                     className={cn(
                       "text-xs rounded-full px-2 py-0.5 font-medium flex items-center gap-1",
-                      isRunning 
+                      isRunning
                         ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
                         : "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400"
                     )}
@@ -59,17 +60,30 @@ export function HostCard({ host, onDelete, onSelect, isSelected, isRunning }: Ho
               {host.modelName && <div>Model: {host.modelName}</div>}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(host.id);
-            }}
-            className="h-8 w-8 text-destructive hover:text-destructive"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(host);
+              }}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(host.id);
+              }}
+              className="h-8 w-8 text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </Card>

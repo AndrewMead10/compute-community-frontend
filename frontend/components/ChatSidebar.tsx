@@ -11,16 +11,21 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { chatHistoryDB, ChatHistory } from '@/lib/indexdb';
-import Link from 'next/link';
 import { useTheme } from 'next-themes';
 
 interface ChatSidebarProps {
   onNewChat: () => void;
   currentChatId?: string;
   onSelectChat: (chatId: string) => void;
+  onToggleSettings: () => void;
 }
 
-export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSidebarProps) {
+export function ChatSidebar({
+  onNewChat,
+  currentChatId,
+  onSelectChat,
+  onToggleSettings
+}: ChatSidebarProps) {
   const [chats, setChats] = useState<ChatHistory[]>([]);
   const { setTheme, theme } = useTheme();
 
@@ -30,7 +35,7 @@ export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSide
 
   const loadChats = async () => {
     const allChats = await chatHistoryDB.getAllChats();
-    setChats(allChats.sort((a, b) => 
+    setChats(allChats.sort((a, b) =>
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     ));
   };
@@ -48,8 +53,8 @@ export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSide
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-2">
-        <Button 
-          onClick={onNewChat} 
+        <Button
+          onClick={onNewChat}
           className="w-full justify-start"
           variant="default"
         >
@@ -83,8 +88,8 @@ export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSide
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter className="border-t space-y-2 p-2">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="w-full justify-start"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         >
@@ -92,12 +97,14 @@ export function ChatSidebar({ onNewChat, currentChatId, onSelectChat }: ChatSide
           <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           Toggle theme
         </Button>
-        <Link href="/settings" className="w-full">
-          <Button variant="ghost" className="w-full justify-start">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Button>
-        </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start"
+          onClick={onToggleSettings}
+        >
+          <Settings className="mr-2 h-4 w-4" />
+          Settings
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
