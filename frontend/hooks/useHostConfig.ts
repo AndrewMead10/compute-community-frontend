@@ -51,7 +51,7 @@ export function useHostConfig() {
     selectedHost,
     baseUrl: selectedHost?.baseUrl || 'https://openrouter.ai/api/v1',
     apiKey: selectedHost?.apiKey,
-    modelName: selectedHost?.modelName || 'AMead10/SuperNova-Medius-AWQ',
+    modelName: selectedHost?.modelName || 'Qwen/Qwen2.5-14B-Instruct-AWQ',
     refresh: loadSelectedHost,
   };
 } 

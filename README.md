@@ -43,9 +43,9 @@ docker run --runtime nvidia --gpus all ^
     -p 8000:8000 ^
     --ipc=host ^
     vllm/vllm-openai:latest ^
-    --model AMead10/Llama-3.1-SuperNova-Lite-AWQ ^
-    --gpu-memory-utilization 0.95 ^
-    --max_model_len 15000 ^
+    --model Qwen/Qwen2.5-14B-Instruct-AWQ ^
+    --gpu-memory-utilization 0.90 ^
+    --max_model_len 16384 ^
     --api-key YOUR_API_KEY
 ```
 
@@ -55,7 +55,7 @@ docker run --runtime nvidia --gpus all \
     -p 8000:8000 \
     --ipc=host \
     vllm/vllm-openai:latest \
-    --model AMead10/SuperNova-Medius-AWQ
+    --model Qwen/Qwen2.5-14B-Instruct-AWQ
     --max_model_len 16384 \
     --api-key YOUR_API_KEY
 ```

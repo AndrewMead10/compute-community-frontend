@@ -249,7 +249,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     return (
         <div
             className={cn(
-                'py-2.5 px-5 border-b text-md',
+                'py-2.5 px-5 border-b text-md mt-2',
                 message.role === 'assistant'
                     ? 'mr-4'
                     : 'bg-primary text-primary-foreground justify-self-end rounded-3xl'

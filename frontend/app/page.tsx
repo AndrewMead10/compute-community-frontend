@@ -7,13 +7,14 @@ import { useHostConfig } from '@/hooks/useHostConfig';
 import { HostCard } from '@/components/settings/HostCard';
 import { AddHostForm } from '@/components/settings/AddHostForm';
 import { HostConfiguration, HostConfigurations } from '@/types/settings';
-import { checkHostHealth } from '@/lib/openrouter';
+import { checkHostHealth, getAvailableModels } from '@/lib/openrouter';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatSidebar } from '@/components/ChatSidebar';
 
 const STORAGE_KEY = 'host_configurations';
 const SELECTED_HOST_KEY = 'selected_host_id';
 const HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
+const MODEL_CHECK_INTERVAL = 30000; // 30 seconds
 
 export default function Home() {
   const { messages, handleSendMessage, isGenerating, handleNewChat, handleLoadChat, currentChatId } = useChatState();
@@ -23,6 +24,7 @@ export default function Home() {
   const [selectedHostId, setSelectedHostId] = useState<string | null>(null);
   const [hostStatus, setHostStatus] = useState<Record<string, boolean>>({});
   const [hostToEdit, setHostToEdit] = useState<HostConfiguration | null>(null);
+  const [currentModel, setCurrentModel] = useState<string | null>(null);
 
   // Load hosts and selected host
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function Home() {
           name: 'Default Host',
           baseUrl: oldBaseUrl,
           apiKey: oldApiKey,
-          modelName: 'AMead10/SuperNova-Medius-AWQ',
+          modelName: 'Qwen/Qwen2.5-14B-Instruct-AWQ',
         };
         setHosts([migratedHost]);
         setSelectedHostId(migratedHost.id);
@@ -85,6 +87,39 @@ export default function Home() {
     const interval = setInterval(checkAllHosts, HEALTH_CHECK_INTERVAL);
     return () => clearInterval(interval);
   }, [hosts]);
+
+  // Model polling effect
+  useEffect(() => {
+    const checkCurrentModel = async () => {
+      if (!selectedHostId) return;
+      const selectedHost = hosts.find(h => h.id === selectedHostId);
+      if (!selectedHost) return;
+
+      try {
+        const models = await getAvailableModels(selectedHost.baseUrl);
+        if (models.length > 0) {
+          const newModel = models[0].name;
+          if (newModel !== selectedHost.modelName) {
+            // Update host configuration with new model
+            const updatedHost = { ...selectedHost, modelName: newModel };
+            handleUpdateHost(updatedHost);
+          }
+          setCurrentModel(newModel);
+        }
+      } catch (error) {
+        console.error('Error checking current model:', error);
+      }
+    };
+
+    // Initial check
+    if (selectedHostId) {
+      checkCurrentModel();
+    }
+
+    // Set up interval for periodic checks
+    const interval = setInterval(checkCurrentModel, MODEL_CHECK_INTERVAL);
+    return () => clearInterval(interval);
+  }, [selectedHostId, hosts]);
 
   const handleAddHost = (newHost: Omit<HostConfiguration, 'id'>) => {
     const hostWithId: HostConfiguration = {
@@ -176,6 +211,7 @@ export default function Home() {
         currentChatId={currentChatId}
         onSelectChat={handleLoadChatWithSettingsClose}
         onToggleSettings={() => setShowSettings(!showSettings)}
+        currentModel={currentModel}
       />
 
       <div className="flex-1">

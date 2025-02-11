@@ -76,7 +76,7 @@ export function AddHostForm({ onAdd, hostToEdit, onUpdate, onCancel }: AddHostFo
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Host name"
+              placeholder="My friends computer"
               required
             />
           </div>

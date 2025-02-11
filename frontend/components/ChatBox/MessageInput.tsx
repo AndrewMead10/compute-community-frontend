@@ -219,7 +219,7 @@ export function MessageInput({
                                     </Tooltip>
                                 )}
 
-                                {webSearchEnabled !== undefined && (
+                                {webSearchEnabled !== false && (
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button

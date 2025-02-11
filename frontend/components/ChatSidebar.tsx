@@ -18,13 +18,15 @@ interface ChatSidebarProps {
   currentChatId?: string;
   onSelectChat: (chatId: string) => void;
   onToggleSettings: () => void;
+  currentModel: string | null;
 }
 
 export function ChatSidebar({
   onNewChat,
   currentChatId,
   onSelectChat,
-  onToggleSettings
+  onToggleSettings,
+  currentModel
 }: ChatSidebarProps) {
   const [chats, setChats] = useState<ChatHistory[]>([]);
   const { setTheme, theme } = useTheme();
@@ -54,6 +56,9 @@ export function ChatSidebar({
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-2">
+        <div className="px-2 py-1 mb-2 text-sm text-muted-foreground truncate">
+          Model: {currentModel || "Qwen/Qwen2.5-14B-Instruct-AWQ"}
+        </div>
         <Button
           onClick={onNewChat}
           className="w-full justify-start"
