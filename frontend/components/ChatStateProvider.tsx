@@ -108,7 +108,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
       const finalMessages = [...updatedMessages, { role: 'assistant' as const, content: streamedContent }];
       const chatHistory: ChatHistory = {
         id: chatId,
-        title: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
+        title: finalMessages[0].content.slice(0, 50) + (finalMessages[0].content.length > 50 ? '...' : ''),
         messages: finalMessages,
         createdAt: new Date(),
         updatedAt: new Date(),
