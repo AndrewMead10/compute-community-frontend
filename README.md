@@ -1,7 +1,7 @@
 # Compute Community
 Compute Community is a peer-to-peer AI compute network that enables users to run large language models (LLMs) on trusted, community-powered GPUs. 
 
-[compute-community page](https://349aef79.compute-community.pages.dev)
+[compute-community page](https://computecommunity.com)
 
 Add gateway url, API key and model name provided by your friends (or any openai API compliant server) in the settings page to start computing.
 
