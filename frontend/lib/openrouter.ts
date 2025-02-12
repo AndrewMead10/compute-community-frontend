@@ -145,16 +145,25 @@ export async function getOpenRouterStreamingCompletion(
   }
 }
 
-export async function getAvailableModels(baseUrl: string): Promise<OpenRouterModel[]> {
+export async function getAvailableModels(baseUrl: string, apiKey: string): Promise<OpenRouterModel[]> {
   try {
-    const response = await fetch(`${baseUrl}/models`);
+    const response = await fetch(`${baseUrl}/v1/models`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': window.location.origin,
+        'X-Title': 'Compute Community Chat',
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch models');
     }
     const data = await response.json();
-    return data.models || [];
+    return data.data || [];
   } catch (error) {
     console.error('Error fetching models:', error);
     return [];
   }
-} 
+}

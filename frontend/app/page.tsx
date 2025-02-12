@@ -96,9 +96,9 @@ export default function Home() {
       if (!selectedHost) return;
 
       try {
-        const models = await getAvailableModels(selectedHost.baseUrl);
+        const models = await getAvailableModels(selectedHost.baseUrl, selectedHost.apiKey);
         if (models.length > 0) {
-          const newModel = models[0].name;
+          const newModel = models[0].id;
           if (newModel !== selectedHost.modelName) {
             // Update host configuration with new model
             const updatedHost = { ...selectedHost, modelName: newModel };

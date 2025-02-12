@@ -34,7 +34,7 @@ export function AddHostForm({ onAdd, hostToEdit, onUpdate, onCancel }: AddHostFo
   useEffect(() => {
     if (baseUrl) {
       setIsLoading(true);
-      getAvailableModels(baseUrl)
+      getAvailableModels(baseUrl, apiKey)
         .then(models => {
           setAvailableModels(models);
           if (models.length > 0 && !modelName && !hostToEdit?.modelName) {
