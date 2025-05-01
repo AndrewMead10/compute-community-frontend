@@ -120,8 +120,9 @@ export default function Home() {
     }
 
     // Set up interval for periodic checks
-    const interval = setInterval(checkAllHosts, HEALTH_CHECK_INTERVAL);
-    return () => clearInterval(interval);
+    /*TODO: UNCOMMENT HEALTH CHECK */
+    // const interval = setInterval(checkAllHosts, HEALTH_CHECK_INTERVAL);
+    // return () => clearInterval(interval);
   }, [hosts]);
 
   // Replace the model polling effect with a manual check function
