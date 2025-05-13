@@ -25,7 +25,9 @@ export interface OpenRouterModel {
 
 export async function checkHostHealth(baseUrl: string): Promise<boolean> {
   try {
-    const response = await fetch(`${baseUrl}/health`);
+    // Remove trailing slash if present
+    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const response = await fetch(`${normalizedBaseUrl}/health`);
     return response.status === 200;
   } catch (error) {
     console.error('Health check failed:', error);
@@ -43,8 +45,11 @@ export async function getOpenRouterCompletion(
     throw new Error('OpenRouter API key not found. Please configure it in settings.');
   }
 
+  // Remove trailing slash if present
+  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    const response = await fetch(`${normalizedBaseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,8 +90,11 @@ export async function getOpenRouterStreamingCompletion(
     throw new Error('OpenRouter API key not found. Please configure it in settings.');
   }
 
+  // Remove trailing slash if present
+  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
   try {
-    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+    const response = await fetch(`${normalizedBaseUrl}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -148,6 +156,9 @@ export async function getOpenRouterStreamingCompletion(
 
 export async function getAvailableModels(baseUrl: string, apiKey: string): Promise<OpenRouterModel[]> {
   try {
+    // Remove trailing slash if present
+    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
@@ -156,11 +167,11 @@ export async function getAvailableModels(baseUrl: string, apiKey: string): Promi
     };
 
     // Only include ngrok-skip-browser-warning header if not using OpenRouter
-    if (!baseUrl.includes('openrouter')) {
+    if (!normalizedBaseUrl.includes('openrouter')) {
       headers['ngrok-skip-browser-warning'] = 'true';
     }
 
-    const response = await fetch(`${baseUrl}/v1/models`, {
+    const response = await fetch(`${normalizedBaseUrl}/v1/models`, {
       method: 'GET',
       headers: headers,
     });
@@ -175,7 +186,7 @@ export async function getAvailableModels(baseUrl: string, apiKey: string): Promi
     const data = await response.json();
 
     // Different APIs might have different response formats
-    if (baseUrl.includes('openrouter')) {
+    if (normalizedBaseUrl.includes('openrouter')) {
       // OpenRouter format
       return (data.data || []).map((model: any) => ({
         id: model.id,
