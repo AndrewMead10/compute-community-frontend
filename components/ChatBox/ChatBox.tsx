@@ -236,6 +236,9 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     const { thinking, mainContent } = message.thinking 
         ? { thinking: message.thinking, mainContent: message.content }
         : extractThinkingContent(message.content);
+    
+    // Check if thinking is empty
+    const hasThinkingContent = thinking && thinking.trim().length > 0;
 
     const renderMarkdown = (content: string) => {
         // Replace LaTeX delimiters
@@ -315,7 +318,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                     : 'bg-primary text-primary-foreground justify-self-end rounded-3xl'
             )}
         >
-            {thinking && (
+            {hasThinkingContent && (
                 <div className="mb-4">
                     <button
                         onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}

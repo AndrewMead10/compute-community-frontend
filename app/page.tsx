@@ -34,6 +34,7 @@ export default function Home() {
   const [userSelectedModel, setUserSelectedModel] = useState<boolean>(false);
   const [userModelSelections, setUserModelSelections] = useState<Record<string, string>>({});
   const [systemPrompt, setSystemPrompt] = useState<string>('');
+  const [thinkingEnabled, setThinkingEnabled] = useState<boolean>(true);
 
   // Load hosts, selected host, and user model selections
   useEffect(() => {
@@ -41,6 +42,12 @@ export default function Home() {
     const savedSelectedHostId = localStorage.getItem(SELECTED_HOST_KEY);
     const savedUserModelSelections = localStorage.getItem('user_model_selections');
     const savedSystemPrompt = localStorage.getItem(SYSTEM_PROMPT_KEY);
+    const savedThinkingEnabled = localStorage.getItem('thinking_enabled');
+
+    // Load thinking preference if available
+    if (savedThinkingEnabled !== null) {
+      setThinkingEnabled(savedThinkingEnabled === 'true');
+    }
 
     // Load saved user model selections
     if (savedUserModelSelections) {
@@ -325,8 +332,14 @@ export default function Home() {
       }
     }
     
+    // For Qwen3 models, append /nothink if thinking is disabled
+    let processedMessage = message;
+    if (currentModel && currentModel.toLowerCase().includes('qwen3') && !thinkingEnabled) {
+      processedMessage = `${message} /nothink`;
+    }
+    
     // Process the message
-    handleSendMessage(message);
+    handleSendMessage(processedMessage);
   };
 
   // Toggle settings function that also checks host health
@@ -449,6 +462,28 @@ export default function Home() {
                   />
                 </div>
               </div>
+
+              {currentModel && currentModel.toLowerCase().includes('qwen3') && (
+                <div>
+                  <h2 className="text-lg font-medium mb-2">Model Settings</h2>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="thinkingEnabled"
+                      checked={thinkingEnabled}
+                      onChange={(e) => {
+                        setThinkingEnabled(e.target.checked);
+                        localStorage.setItem('thinking_enabled', e.target.checked.toString());
+                      }}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <Label htmlFor="thinkingEnabled">Enable thinking mode</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 ml-6">
+                    When enabled, Qwen3 models will show their thinking process before providing the final answer.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         ) : (
