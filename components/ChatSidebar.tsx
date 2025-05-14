@@ -115,7 +115,7 @@ export function ChatSidebar({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setChatToDelete(null)}>
+            <Button variant="customSecondary" onClick={() => setChatToDelete(null)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleConfirmDelete}>
@@ -145,7 +145,7 @@ export function ChatSidebar({
           <Button
             onClick={handleNewChatClick}
             className="w-full justify-start"
-            variant="default"
+            variant="primary"
           >
             <Plus className="mr-2 h-4 w-4" />
             New Chat
@@ -182,16 +182,16 @@ export function ChatSidebar({
         </SidebarContent>
         <SidebarFooter className="border-t space-y-2 p-2">
           <Button
-            variant="ghost"
-            className="w-full justify-start hover:bg-sidebar-accent"
+            variant="customSecondary"
+            className="w-full justify-start bg-transparent  hover:text-foreground"
             onClick={handleSystemPromptSettingsClick}
           >
             <MessageSquare className="mr-2 h-4 w-4" />
             Settings
           </Button>
           <Button
-            variant="ghost"
-            className="w-full justify-start hover:bg-sidebar-accent"
+            variant="customSecondary"
+            className="w-full justify-start bg-transparent hover:text-foreground"
             onClick={handleSettingsClick}
           >
             <Settings className="mr-2 h-4 w-4" />

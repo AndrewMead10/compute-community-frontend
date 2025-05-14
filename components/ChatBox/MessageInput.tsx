@@ -201,6 +201,7 @@ export function MessageInput({
                                             type="submit"
                                             size="sm"
                                             className="px-2.5"
+                                            variant="primary"
                                             aria-label="Send message"
                                             disabled={props.value === '' || isGenerating}
                                         >
@@ -232,7 +233,7 @@ export function MessageInput({
                                                 <Button
                                                     type="button"
                                                     size="icon"
-                                                    variant="ghost"
+                                                    variant="customSecondary"
                                                     className="h-8 w-8"
                                                     aria-label="Attach a file"
                                                     onClick={async () => {
@@ -249,21 +250,22 @@ export function MessageInput({
                                         </Tooltip>
                                     )}
 
-                                    {webSearchEnabled !== false && (
+                                    {webSearchEnabled && (
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <Button
                                                     type="button"
                                                     size="icon"
-                                                    variant={webSearchEnabled ? 'default' : 'ghost'}
-                                                    className="h-8 w-8"
+                                                    variant="customSecondary"
+                                                    className={`h-8 w-8 ${webSearchEnabled ? 'text-primary' : ''}`}
+                                                    aria-label={webSearchEnabled ? 'Web search enabled' : 'Enable web search'}
                                                     onClick={onToggleWebSearch}
                                                 >
                                                     <Globe className="h-4 w-4" />
                                                 </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Toggle web search</p>
+                                                <p>{webSearchEnabled ? 'Web search enabled' : 'Enable web search'}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     )}
@@ -274,8 +276,9 @@ export function MessageInput({
                                                 <Button
                                                     type="button"
                                                     size="icon"
-                                                    variant={isRecording ? 'default' : 'ghost'}
-                                                    className="h-8 w-8"
+                                                    variant="customSecondary"
+                                                    className={`h-8 w-8 ${isRecording ? 'text-destructive' : ''}`}
+                                                    aria-label={isRecording ? 'Stop recording' : 'Start recording'}
                                                     onClick={isRecording ? stopRecording : startRecording}
                                                 >
                                                     <Mic className="h-4 w-4" />

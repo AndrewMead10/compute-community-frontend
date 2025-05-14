@@ -14,6 +14,9 @@ import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { ModelSelector } from '@/components/ModelSelector';
+import { getTokenFromUrl } from '@/lib/auth';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 
 const STORAGE_KEY = 'host_configurations';
 const SELECTED_HOST_KEY = 'selected_host_id';
@@ -35,6 +38,8 @@ export default function Home() {
   const [userSelectedModel, setUserSelectedModel] = useState<boolean>(false);
   const [userModelSelections, setUserModelSelections] = useState<Record<string, string>>({});
   const [systemPrompt, setSystemPrompt] = useState<string>('');
+  const { login } = useAuth();
+  const router = useRouter();
 
   // Load hosts, selected host, and user model selections
   useEffect(() => {
@@ -301,6 +306,16 @@ export default function Home() {
     localStorage.setItem('user_model_selections', JSON.stringify(updatedSelections));
   };
 
+  // Check for token in URL (from OAuth callback)
+  useEffect(() => {
+    const token = getTokenFromUrl();
+    if (token) {
+      login(token);
+      // Optional: redirect to a specific page after login
+      // router.push('/dashboard');
+    }
+  }, [login, router]);
+
   return (
     <main className="flex-1 flex">
       <ChatSidebar
@@ -335,14 +350,18 @@ export default function Home() {
                   <Button
                     onClick={checkCurrentModel}
                     className="flex items-center gap-2"
-                    variant="outline"
+                    variant="customSecondary"
                     title="Refresh available models"
                   >
                     <RefreshCw className="h-4 w-4" />
                     Refresh
                   </Button>
                 )}
-                <Button onClick={openAddHostDialog} className="flex items-center gap-2">
+                <Button
+                  onClick={openAddHostDialog}
+                  className="flex items-center gap-2"
+                  variant="primary"
+                >
                   <Plus className="h-4 w-4" />
                   Add Host
                 </Button>

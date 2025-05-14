@@ -1,0 +1,212 @@
+---
+description: How the chat page is put together
+globs: 
+alwaysApply: false
+---
+ # Chat Page Documentation
+
+## Overview
+
+The chat page is the main interface for interacting with AI models. It provides a fully-featured chat interface with support for multiple conversations, various AI models, and additional features like file attachments, web search, and audio input. The chat interface is built using React components and integrates with various language models through the OpenRouter API. Whenever you make changes to these files, be sure to update the description here.
+
+## Architecture
+
+### Core Components
+
+1. **Main Page (`frontend/app/page.tsx`)**
+   - Entry point for the chat application
+   - Manages host configurations and system settings
+   - Coordinates between sidebar and chat components
+
+2. **ChatStateProvider (`frontend/components/ChatStateProvider.tsx`)**
+   - Implements React Context for global chat state management
+   - Manages chat messages, conversations, and AI interactions
+   - Handles persistence of chat history using IndexedDB
+
+3. **ChatBox (`frontend/components/ChatBox/ChatBox.tsx`)**
+   - Main chat interface component
+   - Displays messages and renders the message input field
+   - Handles scrolling, message formatting, and user interactions
+
+4. **ChatSidebar (`frontend/components/ChatSidebar.tsx`)**
+   - Displays chat history and provides navigation between chats
+   - Allows creating new chats and deleting existing ones
+   - Provides access to settings and model selection
+
+5. **MessageInput (`frontend/components/ChatBox/MessageInput.tsx`)**
+   - Handles user input for sending messages
+   - Supports text input, file attachments, and audio input
+   - Provides drag-and-drop file upload capabilities
+
+6. **OpenRouter API Client (`frontend/lib/openrouter.ts`)**
+   - Manages communication with backend AI services
+   - Supports both streaming and non-streaming completions
+   - Handles model selection and API configuration
+
+## Features
+
+### Chat Management
+
+1. **Multiple Conversations**
+   - Users can create and manage multiple chat conversations
+   - Conversations are stored locally in the browser using IndexedDB
+   - Automatic loading of the most recent conversation on startup
+
+2. **Message History**
+   - Complete history of all messages in each conversation
+   - Persistent storage between sessions
+   - Ability to delete unwanted conversations
+
+### AI Model Integration
+
+1. **Model Selection**
+   - Support for various AI models through OpenRouter
+   - Dynamic model list based on available models from the API
+   - Per-host model preferences that persist between sessions
+
+2. **Host Configuration**
+   - Support for multiple API hosts/endpoints
+   - Configuration of API keys and base URLs
+   - Health checking of configured hosts
+
+3. **System Prompts**
+   - Customizable system prompts to guide AI behavior
+   - Persistent storage of prompts between sessions
+
+### Chat Interface
+
+1. **Message Rendering**
+   - Support for Markdown formatting including code blocks
+   - Syntax highlighting for code snippets
+   - LaTeX math expression rendering
+   - Automatic scrolling to new messages
+
+2. **Message Input**
+   - Multi-line text input with auto-resizing
+   - Keyboard shortcuts (Shift+Enter for new line, Enter to send)
+   - Sending messages to the AI and displaying responses in real-time
+
+3. **Code Handling**
+   - Syntax highlighting for code blocks
+   - Copy button for code snippets
+   - Support for various programming languages
+
+### Advanced Features
+
+1. **File Attachments**
+   - Drag-and-drop file upload
+   - File preview and removal
+   - Support for various file types
+
+2. **Web Search Integration**
+   - Toggle for enabling/disabling web search
+   - Integration with AI responses for up-to-date information
+
+3. **Audio Input**
+   - Speech-to-text functionality
+   - Recording and transcription of audio input
+   - Real-time feedback during recording
+
+4. **Streaming Responses**
+   - Real-time streaming of AI responses
+   - Token-by-token display for immediate feedback
+   - Support for thinking tokens to show AI reasoning process
+
+5. **Feedback Mechanisms**
+   - Like/dislike buttons for messages
+   - Regenerate option for unsatisfactory responses
+
+## Technical Implementation
+
+### State Management
+
+1. **React Context API**
+   - Global state management through ChatStateProvider
+   - Sharing chat state across components
+   - Managing UI state for various features
+
+2. **Local Storage**
+   - Storing host configurations and preferences
+   - Remembering selected models and hosts between sessions
+
+3. **IndexedDB**
+   - Persistent storage of chat history
+   - Efficient retrieval and updating of conversations
+
+### API Integration
+
+1. **OpenRouter API**
+   - Standard and streaming completions API
+   - Model listing and selection
+   - Error handling and retry mechanisms
+
+2. **Dynamic Host Configuration**
+   - Support for custom API endpoints
+   - Health checking and availability monitoring
+   - Automatic reconnection and fallback
+
+### UI Components
+
+1. **Responsive Design**
+   - Mobile-friendly interface with adaptive layout
+   - Responsive message input and display
+   - Optimized for various screen sizes
+
+2. **Accessibility**
+   - Keyboard navigation support
+   - Screen reader compatibility
+   - Focus management for modal dialogs
+
+3. **Theming**
+   - Light and dark mode support
+   - Consistent styling with design system
+   - Custom component styling
+
+## User Flow
+
+1. **Initial Load**
+   - Load host configurations and system settings
+   - Restore most recent conversation if available
+   - Initialize connection to API
+
+2. **Creating a New Chat**
+   - Click "New Chat" button in sidebar
+   - Clear current messages
+   - Set up new conversation context
+
+3. **Sending Messages**
+   - Type message in input box
+   - Optionally add attachments or use audio input
+   - Press Enter or click send button
+   - View real-time streaming response from AI
+
+4. **Managing Conversations**
+   - Switch between conversations using sidebar
+   - Delete unwanted conversations
+   - Create new conversations as needed
+
+5. **Configuring Settings**
+   - Access settings through sidebar
+   - Configure hosts, API keys, and system prompts
+   - Select preferred AI models
+
+## Integration Points
+
+1. **Backend Services**
+   - OpenRouter API for AI completions
+   - Custom API endpoints for self-hosted models
+   - Health checking and availability monitoring
+
+2. **Browser Storage**
+   - IndexedDB for chat history
+   - LocalStorage for settings and preferences
+
+3. **External Libraries**
+   - React Markdown for rendering formatted messages
+   - Syntax highlighting for code blocks
+   - KaTeX for math expressions
+
+
+## Conclusion
+
+The chat page provides a robust and feature-rich interface for interacting with AI models. It combines a clean, user-friendly design with powerful features like file attachments, web search, and audio input. The architecture is modular and extensible, allowing for easy integration of new features and models in the future.

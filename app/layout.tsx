@@ -5,6 +5,9 @@ import { ChatStateProvider } from "@/components/ChatStateProvider";
 import { ThemeProvider } from "next-themes";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TopNav } from "@/components/ui/top-nav";
+import { AuthProvider } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/sonner"
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,16 +54,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ChatStateProvider>
-            <SidebarProvider>
-              <div className="flex h-[100dvh] flex-col w-full max-w-[100vw]">
-                <TopNav />
-                <div className="flex flex-1 overflow-hidden">
-                  {children}
+          <AuthProvider>
+            <ChatStateProvider>
+              <SidebarProvider>
+                <div className="flex h-[100dvh] flex-col w-full max-w-[100vw]">
+                  <TopNav />
+                  <div className="flex flex-1 overflow-hidden">
+                    {children}
+                  </div>
+                  <Toaster />
                 </div>
-              </div>
-            </SidebarProvider>
-          </ChatStateProvider>
+              </SidebarProvider>
+            </ChatStateProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

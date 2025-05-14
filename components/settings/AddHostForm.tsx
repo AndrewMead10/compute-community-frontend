@@ -119,11 +119,11 @@ export function AddHostForm({
 
           <DialogFooter>
             {hostToEdit && (
-              <Button type="button" variant="outline" onClick={handleCancel}>
+              <Button type="button" variant="customSecondary" onClick={handleCancel}>
                 Cancel
               </Button>
             )}
-            <Button type="submit">
+            <Button type="submit" variant="primary">
               {hostToEdit ? 'Update Host' : 'Add Host'}
             </Button>
           </DialogFooter>

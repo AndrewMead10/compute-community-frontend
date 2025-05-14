@@ -62,7 +62,7 @@ export function HostCard({ host, onDelete, onSelect, onEdit, isSelected, isRunni
           </div>
           <div className="flex gap-2">
             <Button
-              variant="ghost"
+              variant="customSecondary"
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
@@ -73,7 +73,7 @@ export function HostCard({ host, onDelete, onSelect, onEdit, isSelected, isRunni
               <Pencil className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
+              variant="customSecondary"
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
