@@ -7,6 +7,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, prism } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { useTheme } from 'next-themes';
@@ -252,8 +254,8 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
 
         return (
             <ReactMarkdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
+                remarkPlugins={[remarkMath, remarkGfm]}
+                rehypePlugins={[rehypeRaw, rehypeKatex]}
                 components={{
                     code({ className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || '');
@@ -303,8 +305,29 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                     li: ({ children }) => (
                         <li className="pl-1 mb-1">{children}</li>
                     ),
+                    table: ({ children }) => (
+                        <div className="overflow-x-auto my-4 rounded-md border border-border">
+                            <table className="border-collapse w-full">{children}</table>
+                        </div>
+                    ),
+                    thead: ({ children }) => (
+                        <thead className="bg-muted/50">{children}</thead>
+                    ),
+                    tbody: ({ children }) => (
+                        <tbody className="divide-y divide-border">{children}</tbody>
+                    ),
+                    tr: (props) => {
+                        const { children, ...rest } = props;
+                        return <tr className="hover:bg-muted/10 transition-colors" {...rest}>{children}</tr>;
+                    },
+                    th: ({ children }) => (
+                        <th className="py-3 px-4 text-left font-medium border-b border-border">{children}</th>
+                    ),
+                    td: ({ children }) => (
+                        <td className="py-3 px-4">{children}</td>
+                    ),
                 }}
-                className="prose dark:prose-invert max-w-none prose-pre:p-0 leading-7"
+                className="prose dark:prose-invert max-w-none prose-pre:p-0 prose-table:my-0 prose-table:overflow-hidden leading-7"
             >
                 {processedContent}
             </ReactMarkdown>
