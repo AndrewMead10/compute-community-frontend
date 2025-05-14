@@ -202,15 +202,40 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     modelName,
     thinkingTokens,
 }) => {
-    const [isThinkingExpanded, setIsThinkingExpanded] = useState(true);
+    const [isThinkingExpanded, setIsThinkingExpanded] = useState(false);
     const [mounted, setMounted] = useState(false);
     const messageKey = `${message.role}-${message.content.substring(0, 20)}`;
     const { theme } = useTheme();
+    
+    // Extract thinking content using thinkingTokens
+    const extractThinkingContent = (content: string) => {
+        if (!content) return { thinking: null, mainContent: content };
+        
+        const startToken = thinkingTokens.start;
+        const endToken = thinkingTokens.end;
+        
+        if (!content.includes(startToken)) return { thinking: null, mainContent: content };
+        
+        const startIndex = content.indexOf(startToken);
+        const endIndex = content.indexOf(endToken, startIndex + startToken.length);
+        
+        if (endIndex === -1) return { thinking: null, mainContent: content };
+        
+        const thinking = content.substring(startIndex + startToken.length, endIndex).trim();
+        const mainContent = (content.substring(0, startIndex) + content.substring(endIndex + endToken.length)).trim();
+        
+        return { thinking, mainContent };
+    };
 
     // Set mounted state
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    // Extract thinking and main content
+    const { thinking, mainContent } = message.thinking 
+        ? { thinking: message.thinking, mainContent: message.content }
+        : extractThinkingContent(message.content);
 
     const renderMarkdown = (content: string) => {
         // Replace LaTeX delimiters
@@ -290,30 +315,28 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                     : 'bg-primary text-primary-foreground justify-self-end rounded-3xl'
             )}
         >
-            {message.thinking && (
-                <div className="mb-2">
+            {thinking && (
+                <div className="mb-4">
                     <button
                         onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
-                        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                        className="flex items-center gap-1 text-md text-muted-foreground hover:text-foreground px-2 py-1 rounded-md"
                     >
                         {isThinkingExpanded ? (
                             <ChevronUp className="w-4 h-4" />
                         ) : (
                             <ChevronDown className="w-4 h-4" />
                         )}
-                        Thinking
+                        <span>Thinking</span>
                     </button>
                     {isThinkingExpanded && (
-                        <div className="mt-2 text-sm text-muted-foreground">
-                            {message.thinking
-                                .replace(thinkingTokens.start, '')
-                                .replace(thinkingTokens.end, '')}
+                        <div className="mt-2 text-sm text-muted-foreground p-3 bg-muted/30 rounded-md border border-muted/50">
+                            {renderMarkdown(thinking)}
                         </div>
                     )}
                 </div>
             )}
 
-            {renderMarkdown(message.content)}
+            {renderMarkdown(mainContent)}
 
             {message.role === 'assistant' && (
                 <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
