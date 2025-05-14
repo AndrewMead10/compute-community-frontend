@@ -47,7 +47,10 @@ export function AddHostForm({
     e.preventDefault();
     if (!name || !baseUrl || !apiKey) return;
 
-    const hostData = { name, baseUrl, apiKey, modelName };
+    // Remove trailing slash from baseUrl if it exists
+    const cleanedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+
+    const hostData = { name, baseUrl: cleanedBaseUrl, apiKey, modelName };
 
     if (hostToEdit && onUpdate) {
       onUpdate({ ...hostData, id: hostToEdit.id });
