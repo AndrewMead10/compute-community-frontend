@@ -27,6 +27,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { WelcomeScreen } from '@/components/WelcomeScreen';
 
 export const ChatBox: React.FC<ChatBoxProps> = ({
     messages,
@@ -99,9 +100,26 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
         className
     );
 
+    // If it's a new chat, render the welcome screen
+    if (isNewChat) {
+        return (
+            <div className={containerClasses}>
+                <WelcomeScreen
+                    onSendMessage={onSendMessage}
+                    isGenerating={isGenerating}
+                    allowFileUpload={allowFileUpload}
+                    onFileUpload={onFileUpload}
+                    allowAudioInput={allowAudioInput}
+                    onAudioInput={onAudioInput}
+                    webSearchEnabled={webSearchEnabled}
+                    onToggleWebSearch={onToggleWebSearch}
+                />
+            </div>
+        );
+    }
+
     const messageContainerClasses = cn(
-        'flex-1 overflow-y-auto p-4 space-y-4 h-full',
-        isNewChat ? 'flex flex-col justify-end' : ''
+        'flex-1 overflow-y-auto p-4 space-y-4 h-full'
     );
 
     return (
