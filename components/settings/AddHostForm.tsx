@@ -30,14 +30,22 @@ export function AddHostForm({
   onOpenChange
 }: AddHostFormProps) {
   const [name, setName] = useState(hostToEdit?.name || '');
-  const [baseUrl, setBaseUrl] = useState(hostToEdit?.baseUrl || '');
+  // Normalize baseUrl by removing trailing slashes in initial state
+  const initialBaseUrl = hostToEdit?.baseUrl 
+    ? (hostToEdit.baseUrl.endsWith('/') ? hostToEdit.baseUrl.slice(0, -1) : hostToEdit.baseUrl)
+    : '';
+  const [baseUrl, setBaseUrl] = useState(initialBaseUrl);
   const [apiKey, setApiKey] = useState(hostToEdit?.apiKey || '');
   const [modelName, setModelName] = useState(hostToEdit?.modelName || '');
 
   useEffect(() => {
     if (hostToEdit) {
       setName(hostToEdit.name);
-      setBaseUrl(hostToEdit.baseUrl);
+      // Normalize baseUrl by removing trailing slashes when loading from hostToEdit
+      const normalizedBaseUrl = hostToEdit.baseUrl.endsWith('/') 
+        ? hostToEdit.baseUrl.slice(0, -1) 
+        : hostToEdit.baseUrl;
+      setBaseUrl(normalizedBaseUrl);
       setApiKey(hostToEdit.apiKey);
       setModelName(hostToEdit.modelName || '');
     }
@@ -47,7 +55,9 @@ export function AddHostForm({
     e.preventDefault();
     if (!name || !baseUrl || !apiKey) return;
 
-    const hostData = { name, baseUrl, apiKey, modelName };
+    // Normalize baseUrl by removing trailing slashes
+    const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const hostData = { name, baseUrl: normalizedBaseUrl, apiKey, modelName };
 
     if (hostToEdit && onUpdate) {
       onUpdate({ ...hostData, id: hostToEdit.id });
@@ -100,7 +110,11 @@ export function AddHostForm({
             <Input
               id="base-url"
               value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value)}
+              onChange={(e) => {
+                // Normalize URL by removing trailing slashes when user inputs it
+                const value = e.target.value;
+                setBaseUrl(value);
+              }}
               placeholder="Base URL"
               required
             />
