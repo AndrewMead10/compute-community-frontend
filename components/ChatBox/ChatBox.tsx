@@ -98,6 +98,23 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
         }, 2000);
     }, []);
 
+    // Handlers for message component actions - memoize these callbacks
+    const handleRegenerateMessage = useCallback(() => {
+        if (onRegenerateMessage) onRegenerateMessage();
+    }, [onRegenerateMessage]);
+
+    const handleLike = useCallback(() => {
+        if (onLike) onLike();
+    }, [onLike]);
+
+    const handleDislike = useCallback(() => {
+        if (onDislike) onDislike();
+    }, [onDislike]);
+
+    const handleGenerateAudio = useCallback(async (text: string) => {
+        if (generateAudio) await generateAudio(text);
+    }, [generateAudio]);
+
     // Memoize container classes to prevent recalculation on every render
     const containerClasses = useMemo(() => 
         cn('flex flex-col w-full h-full overflow-hidden', className),
@@ -106,6 +123,14 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     const messageContainerClasses = useMemo(() => 
         cn('flex-1 overflow-y-auto p-4 space-y-4 h-full'),
     []);
+
+    // Memoize the gradient overlay style
+    const gradientStyle = useMemo(() => 
+        cn(
+            'absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent pointer-events-none z-10 transition-opacity duration-200',
+            hasScrolled ? 'opacity-100' : 'opacity-0'
+        ),
+    [hasScrolled]);
 
     // If it's a new chat, render the welcome screen
     if (isNewChat) {
@@ -124,31 +149,6 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
             </div>
         );
     }
-
-    // Handlers for message component actions - memoize these callbacks
-    const handleRegenerateMessage = useCallback(() => {
-        if (onRegenerateMessage) onRegenerateMessage();
-    }, [onRegenerateMessage]);
-
-    const handleLike = useCallback(() => {
-        if (onLike) onLike();
-    }, [onLike]);
-
-    const handleDislike = useCallback(() => {
-        if (onDislike) onDislike();
-    }, [onDislike]);
-
-    const handleGenerateAudio = useCallback(async (text: string) => {
-        if (generateAudio) await generateAudio(text);
-    }, [generateAudio]);
-
-    // Memoize the gradient overlay style
-    const gradientStyle = useMemo(() => 
-        cn(
-            'absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent pointer-events-none z-10 transition-opacity duration-200',
-            hasScrolled ? 'opacity-100' : 'opacity-0'
-        ),
-    [hasScrolled]);
 
     return (
         <div className={containerClasses}>
@@ -232,7 +232,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     const { theme } = useTheme();
     
     // Extract thinking content using thinkingTokens
-    const extractThinkingContent = (content: string) => {
+    const extractThinkingContent = useCallback((content: string) => {
         if (!content) return { thinking: null, mainContent: content };
         
         const startToken = thinkingTokens.start;
@@ -255,7 +255,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
         const mainContent = (content.substring(0, startIndex) + content.substring(endIndex + endToken.length)).trim();
         
         return { thinking, mainContent };
-    };
+    }, [thinkingTokens]);
 
     // Set mounted state
     useEffect(() => {
@@ -263,12 +263,16 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
     }, []);
 
     // Extract thinking and main content
-    const { thinking, mainContent } = message.thinking 
-        ? { thinking: message.thinking, mainContent: message.content }
-        : extractThinkingContent(message.content);
+    const { thinking, mainContent } = useMemo(() => {
+        return message.thinking 
+            ? { thinking: message.thinking, mainContent: message.content }
+            : extractThinkingContent(message.content);
+    }, [message.thinking, message.content, extractThinkingContent]);
     
     // Check if thinking is empty
-    const hasThinkingContent = Boolean(thinking && thinking.trim().length > 0);
+    const hasThinkingContent = useMemo(() => 
+        Boolean(thinking && thinking.trim().length > 0),
+    [thinking]);
 
     // Auto-expand thinking during generation if we have thinking content
     // and collapse it when thinking has ended
@@ -279,7 +283,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
         }
     }, [thinking, hasThinkingContent, message.content, thinkingTokens.end]);
 
-    const renderMarkdown = (content: string) => {
+    const renderMarkdown = useCallback((content: string) => {
         if (!content) return null;
         
         // Replace LaTeX delimiters
@@ -369,7 +373,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                 {processedContent}
             </ReactMarkdown>
         );
-    };
+    }, [messageKey, mounted, theme, onCopy, copiedStates, message.role]);
 
     return (
         <div

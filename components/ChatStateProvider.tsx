@@ -42,15 +42,8 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const loadInitialChat = async () => {
-      const chats = await chatHistoryDB.getAllChats();
-      if (chats.length > 0) {
-        const mostRecentChat = chats.sort((a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        )[0];
-
-        setCurrentChatId(mostRecentChat.id);
-        setMessages(mostRecentChat.messages);
-      }
+      // Start with a new chat instead of loading the most recent one
+      handleNewChat();
     };
 
     loadInitialChat();

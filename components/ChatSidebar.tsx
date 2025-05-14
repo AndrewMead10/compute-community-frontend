@@ -167,14 +167,20 @@ export function ChatSidebar({
                       {chat.title}
                     </span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 hover:bg-sidebar-accent hover:text-destructive ${currentChatId === chat.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent hover:text-destructive cursor-pointer ${currentChatId === chat.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                     onClick={(e) => handleDeleteClick(chat.id, e)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleDeleteClick(chat.id, e as unknown as React.MouseEvent);
+                      }
+                    }}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </Button>
+                  </div>
                 </Button>
               ))}
             </div>
