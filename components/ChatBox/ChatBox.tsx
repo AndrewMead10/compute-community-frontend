@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Message, ChatBoxProps } from './types';
 import { cn } from '@/lib/utils';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -65,16 +65,16 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
         }
     }, [messages, autoScroll]);
 
-    // Handle scroll events
-    const handleScroll = () => {
+    // Handle scroll events - memoize this callback
+    const handleScroll = useCallback(() => {
         if (!chatContainerRef.current) return;
         const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
         setAutoScroll(scrollTop + clientHeight >= scrollHeight - 10);
         setHasScrolled(scrollTop > 0);
-    };
+    }, []);
 
-    // Handle message submission
-    const handleSubmit = (e: React.FormEvent) => {
+    // Handle message submission - memoize this callback
+    const handleSubmit = useCallback((e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isGenerating) return;
 
@@ -87,21 +87,25 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
         setInput('');
         setFiles(null);
         setAutoScroll(true);
-    };
+    }, [input, isGenerating, files, onFileUpload, onSendMessage]);
 
-    // Handle copy functionality
-    const handleCopy = async (text: string, key: string) => {
+    // Handle copy functionality - memoize this callback
+    const handleCopy = useCallback(async (text: string, key: string) => {
         await navigator.clipboard.writeText(text);
-        setCopiedStates({ ...copiedStates, [key]: true });
+        setCopiedStates(prev => ({ ...prev, [key]: true }));
         setTimeout(() => {
-            setCopiedStates({ ...copiedStates, [key]: false });
+            setCopiedStates(prev => ({ ...prev, [key]: false }));
         }, 2000);
-    };
+    }, []);
 
-    const containerClasses = cn(
-        'flex flex-col w-full h-full overflow-hidden',
-        className
-    );
+    // Memoize container classes to prevent recalculation on every render
+    const containerClasses = useMemo(() => 
+        cn('flex flex-col w-full h-full overflow-hidden', className),
+    [className]);
+
+    const messageContainerClasses = useMemo(() => 
+        cn('flex-1 overflow-y-auto p-4 space-y-4 h-full'),
+    []);
 
     // If it's a new chat, render the welcome screen
     if (isNewChat) {
@@ -121,19 +125,35 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
         );
     }
 
-    const messageContainerClasses = cn(
-        'flex-1 overflow-y-auto p-4 space-y-4 h-full'
-    );
+    // Handlers for message component actions - memoize these callbacks
+    const handleRegenerateMessage = useCallback(() => {
+        if (onRegenerateMessage) onRegenerateMessage();
+    }, [onRegenerateMessage]);
+
+    const handleLike = useCallback(() => {
+        if (onLike) onLike();
+    }, [onLike]);
+
+    const handleDislike = useCallback(() => {
+        if (onDislike) onDislike();
+    }, [onDislike]);
+
+    const handleGenerateAudio = useCallback(async (text: string) => {
+        if (generateAudio) await generateAudio(text);
+    }, [generateAudio]);
+
+    // Memoize the gradient overlay style
+    const gradientStyle = useMemo(() => 
+        cn(
+            'absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent pointer-events-none z-10 transition-opacity duration-200',
+            hasScrolled ? 'opacity-100' : 'opacity-0'
+        ),
+    [hasScrolled]);
 
     return (
         <div className={containerClasses}>
             <div className="relative flex-1 overflow-hidden">
-                <div
-                    className={cn(
-                        'absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent pointer-events-none z-10 transition-opacity duration-200',
-                        hasScrolled ? 'opacity-100' : 'opacity-0'
-                    )}
-                />
+                <div className={gradientStyle} />
                 <div
                     ref={chatContainerRef}
                     onScroll={handleScroll}
@@ -142,15 +162,15 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                 >
                     <div className="max-w-4xl mx-auto">
                         {messages.map((message, index) => (
-                            <MessageComponent
-                                key={index}
+                            <MemoizedMessageComponent
+                                key={`${message.role}-${index}`}
                                 message={message}
                                 onCopy={handleCopy}
                                 copiedStates={copiedStates}
-                                onRegenerateMessage={onRegenerateMessage}
-                                onLike={onLike}
-                                onDislike={onDislike}
-                                generateAudio={generateAudio}
+                                onRegenerateMessage={handleRegenerateMessage}
+                                onLike={handleLike}
+                                onDislike={handleDislike}
+                                generateAudio={handleGenerateAudio}
                                 modelName={message.role === 'assistant' ? (message.modelName || modelName) : undefined}
                                 thinkingTokens={thinkingTokens}
                             />
@@ -481,4 +501,19 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
             )}
         </div>
     );
-}; 
+};
+
+// Memoized version of MessageComponent to prevent unnecessary re-renders
+const MemoizedMessageComponent = React.memo(MessageComponent, (prevProps, nextProps) => {
+    // Custom comparison function to determine if the component should re-render
+    // Only re-render if essential props have changed
+    return (
+        prevProps.message.content === nextProps.message.content &&
+        prevProps.message.role === nextProps.message.role &&
+        prevProps.message.thinking === nextProps.message.thinking &&
+        prevProps.modelName === nextProps.modelName &&
+        // For copiedStates, only check the keys relevant to this message
+        prevProps.copiedStates[`${prevProps.message.role}-${prevProps.message.content.substring(0, 20)}`] ===
+        nextProps.copiedStates[`${nextProps.message.role}-${nextProps.message.content.substring(0, 20)}`]
+    );
+}); 
