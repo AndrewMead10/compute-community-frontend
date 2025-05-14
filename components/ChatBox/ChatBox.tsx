@@ -223,7 +223,13 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
         const startIndex = content.indexOf(startToken);
         const endIndex = content.indexOf(endToken, startIndex + startToken.length);
         
-        if (endIndex === -1) return { thinking: null, mainContent: content };
+        // If we find a start token but no end token (during generation), 
+        // consider everything after the start token as thinking
+        if (endIndex === -1) {
+            const thinking = content.substring(startIndex + startToken.length).trim();
+            const mainContent = content.substring(0, startIndex).trim();
+            return { thinking, mainContent };
+        }
         
         const thinking = content.substring(startIndex + startToken.length, endIndex).trim();
         const mainContent = (content.substring(0, startIndex) + content.substring(endIndex + endToken.length)).trim();
@@ -242,9 +248,20 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
         : extractThinkingContent(message.content);
     
     // Check if thinking is empty
-    const hasThinkingContent = thinking && thinking.trim().length > 0;
+    const hasThinkingContent = Boolean(thinking && thinking.trim().length > 0);
+
+    // Auto-expand thinking during generation if we have thinking content
+    // and collapse it when thinking has ended
+    useEffect(() => {
+        if (thinking) {
+            const isGeneratingThinking = hasThinkingContent && !message.content.includes(thinkingTokens.end);
+            setIsThinkingExpanded(isGeneratingThinking);
+        }
+    }, [thinking, hasThinkingContent, message.content, thinkingTokens.end]);
 
     const renderMarkdown = (content: string) => {
+        if (!content) return null;
+        
         // Replace LaTeX delimiters
         const processedContent = content
             .replace(/\\\[/g, '$$')
@@ -356,7 +373,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                         )}
                         <span>Thinking</span>
                     </button>
-                    {isThinkingExpanded && (
+                    {isThinkingExpanded && thinking && (
                         <div className="mt-2 text-sm text-muted-foreground p-3 bg-muted/30 rounded-md border border-muted/50">
                             {renderMarkdown(thinking)}
                         </div>
@@ -364,7 +381,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
                 </div>
             )}
 
-            {renderMarkdown(mainContent)}
+            {mainContent && renderMarkdown(mainContent)}
 
             {message.role === 'assistant' && (
                 <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
