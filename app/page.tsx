@@ -17,7 +17,6 @@ import { ModelSelector } from '@/components/ModelSelector';
 
 const STORAGE_KEY = 'host_configurations';
 const SELECTED_HOST_KEY = 'selected_host_id';
-const HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
 const SYSTEM_PROMPT_KEY = 'system_prompt';
 
 export default function Home() {
@@ -104,31 +103,32 @@ export default function Home() {
     }
   }, []);
 
-  // Health check effect
-  useEffect(() => {
-    const checkAllHosts = async () => {
-      const newStatus: Record<string, boolean> = {};
-      for (const host of hosts) {
-        newStatus[host.id] = await checkHostHealth(host.baseUrl);
-      }
-      setHostStatus(newStatus);
-    };
+  // Function to check health of all configured hosts
+  const checkAllHosts = async () => {
+    const newStatus: Record<string, boolean> = {};
+    for (const host of hosts) {
+      newStatus[host.id] = await checkHostHealth(host.baseUrl);
+    }
+    setHostStatus(newStatus);
+  };
 
-    // Initial check
+  // Removed the interval-based health check effect
+  // Only run initial check when hosts are loaded
+  useEffect(() => {
     if (hosts.length > 0) {
       checkAllHosts();
     }
-
-    // Set up interval for periodic checks
-    const interval = setInterval(checkAllHosts, HEALTH_CHECK_INTERVAL);
-    return () => clearInterval(interval);
   }, [hosts]);
 
-  // Replace the model polling effect with a manual check function
+  // Check current model function now also checks host health
   const checkCurrentModel = async () => {
     if (!selectedHostId) return;
     const selectedHost = hosts.find(h => h.id === selectedHostId);
     if (!selectedHost) return;
+
+    // Check health of the selected host
+    const isHealthy = await checkHostHealth(selectedHost.baseUrl);
+    setHostStatus(prev => ({ ...prev, [selectedHostId]: isHealthy }));
 
     try {
       const models = await getAvailableModels(selectedHost.baseUrl, selectedHost.apiKey);
@@ -253,6 +253,14 @@ export default function Home() {
       setUserSelectedModel(false);
     }
 
+    // Check the health of the selected host
+    const selectedHost = hosts.find(h => h.id === id);
+    if (selectedHost) {
+      checkHostHealth(selectedHost.baseUrl).then(status => {
+        setHostStatus(prev => ({ ...prev, [id]: status }));
+      });
+    }
+
     // Dispatch the change event
     dispatchHostConfigChange();
   };
@@ -287,6 +295,11 @@ export default function Home() {
     const selectedHost = hosts.find(h => h.id === selectedHostId);
     if (!selectedHost) return;
 
+    // Check the health of the host when changing models
+    checkHostHealth(selectedHost.baseUrl).then(status => {
+      setHostStatus(prev => ({ ...prev, [selectedHostId]: status }));
+    });
+
     const updatedHost = { ...selectedHost, modelName: modelId };
     handleUpdateHost(updatedHost);
     setCurrentModel(modelId);
@@ -301,16 +314,40 @@ export default function Home() {
     localStorage.setItem('user_model_selections', JSON.stringify(updatedSelections));
   };
 
+  // Wrapper for handleSendMessage that also checks host health
+  const handleSendWithHealthCheck = async (message: string) => {
+    // Check health when sending a message
+    if (selectedHostId) {
+      const selectedHost = hosts.find(h => h.id === selectedHostId);
+      if (selectedHost) {
+        const isHealthy = await checkHostHealth(selectedHost.baseUrl);
+        setHostStatus(prev => ({ ...prev, [selectedHostId]: isHealthy }));
+      }
+    }
+    
+    // Process the message
+    handleSendMessage(message);
+  };
+
+  // Toggle settings function that also checks host health
+  const toggleSettings = () => {
+    const newSettingsState = !showSettings;
+    setShowSettings(newSettingsState);
+    setShowSystemPromptSettings(false);
+    
+    // Run health check when opening settings
+    if (newSettingsState && hosts.length > 0) {
+      checkAllHosts();
+    }
+  };
+
   return (
     <main className="flex-1 flex">
       <ChatSidebar
         onNewChat={handleNewChatWithSettingsClose}
         currentChatId={currentChatId}
         onSelectChat={handleLoadChatWithSettingsClose}
-        onToggleSettings={() => {
-          setShowSettings(!showSettings);
-          setShowSystemPromptSettings(false);
-        }}
+        onToggleSettings={toggleSettings}
         onToggleSystemPromptSettings={() => {
           setShowSystemPromptSettings(!showSystemPromptSettings);
           setShowSettings(false);
@@ -417,7 +454,7 @@ export default function Home() {
         ) : (
           <ChatBox
             messages={messages}
-            onSendMessage={handleSendMessage}
+            onSendMessage={handleSendWithHealthCheck}
             isGenerating={isGenerating}
             modelName={hostConfig.modelName || 'AI Assistant'}
             isNewChat={messages.length === 0}
