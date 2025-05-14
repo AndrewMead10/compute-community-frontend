@@ -11,6 +11,6 @@ The frontend is built with Next.js. For local development:
 
 1. Install dependencies and run the development server
 ```bash
-npm install
+npm i
 npm run dev
 ```

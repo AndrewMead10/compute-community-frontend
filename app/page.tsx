@@ -337,7 +337,7 @@ export default function Home() {
         apiKey={selectedHostId ? hosts.find(h => h.id === selectedHostId)?.apiKey || '' : ''}
       />
 
-      <div className="flex-1">
+      <div className="flex-1" style={{width: "200px"}}>
         {showSettings ? (
           <div className="container mx-auto py-4 px-6 max-w-4xl">
             <div className="flex items-center justify-between mb-4">
