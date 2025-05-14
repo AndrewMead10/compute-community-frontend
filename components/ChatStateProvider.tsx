@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Message } from '@/components/ChatBox/types';
 import { chatHistoryDB, ChatHistory } from '@/lib/indexdb';
@@ -16,6 +16,7 @@ interface ChatContextType {
   handleNewChat: () => void;
   handleLoadChat: (chatId: string) => void;
   handleSendMessage: (content: string) => Promise<void>;
+  stopGeneration: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -33,6 +34,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
   const [currentChatId, setCurrentChatId] = useState<string | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
   const hostConfig = useHostConfig();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const getSystemPrompt = (): string | null => {
     return localStorage.getItem(SYSTEM_PROMPT_KEY);
@@ -67,11 +69,26 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const stopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setIsGenerating(false);
+    }
+  };
+
   const handleSendMessage = async (content: string) => {
     const userMessage: Message = { role: 'user', content };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setIsGenerating(true);
+
+    // Create a new AbortController for this request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    const { signal } = abortControllerRef.current;
 
     try {
       const assistantMessage: Message = {
@@ -104,7 +121,8 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
           baseUrl: hostConfig.baseUrl,
           apiKey: hostConfig.apiKey || null,
           modelName: hostConfig.modelName || 'AMead10/SuperNova-Medius-AWQ',
-        }
+        },
+        signal
       );
 
       const chatId = currentChatId || uuidv4();
@@ -129,12 +147,21 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
       await chatHistoryDB.saveChat(chatHistory);
     } catch (error) {
       console.error('Error getting AI response:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}. Please check your API settings.`,
-      };
-      setMessages([...updatedMessages, errorMessage]);
+      // Only show error message if it's not an AbortError (user cancellation)
+      if (error instanceof Error && 
+          (error.name !== 'AbortError' && 
+           !error.message.includes('BodyStreamBuffer was aborted'))) {
+        const errorMessage: Message = {
+          role: 'assistant',
+          content: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}. Please check your API settings.`,
+        };
+        setMessages([...updatedMessages, errorMessage]);
+      }
     } finally {
+      // Always clean up the abort controller reference
+      if (abortControllerRef.current?.signal === signal) {
+        abortControllerRef.current = null;
+      }
       setIsGenerating(false);
     }
   };
@@ -146,6 +173,7 @@ export function ChatStateProvider({ children }: { children: React.ReactNode }) {
     handleNewChat,
     handleLoadChat,
     handleSendMessage,
+    stopGeneration,
   };
 
   return (

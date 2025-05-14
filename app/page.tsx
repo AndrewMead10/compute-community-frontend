@@ -20,7 +20,7 @@ const SELECTED_HOST_KEY = 'selected_host_id';
 const SYSTEM_PROMPT_KEY = 'system_prompt';
 
 export default function Home() {
-  const { messages, handleSendMessage, isGenerating, handleNewChat, handleLoadChat, currentChatId } = useChatState();
+  const { messages, handleSendMessage, isGenerating, handleNewChat, handleLoadChat, currentChatId, stopGeneration } = useChatState();
   const hostConfig = useHostConfig();
   const [showSettings, setShowSettings] = useState(false);
   const [showSystemPromptSettings, setShowSystemPromptSettings] = useState(false);
@@ -493,6 +493,7 @@ export default function Home() {
             isGenerating={isGenerating}
             modelName={hostConfig.modelName || 'AI Assistant'}
             isNewChat={messages.length === 0}
+            stop={stopGeneration}
           />
         )}
       </div>

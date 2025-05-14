@@ -47,6 +47,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     thinkingTokens = { start: '<think>', end: '</think>' },
     className,
     isNewChat = false,
+    stop,
 }) => {
     const [input, setInput] = useState('');
     const [files, setFiles] = useState<File[] | null>(null);
@@ -171,6 +172,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                             onToggleWebSearch={onToggleWebSearch}
                             allowAudioInput={allowAudioInput}
                             onAudioInput={onAudioInput}
+                            stop={stop}
                         />
                     </form>
                 </div>

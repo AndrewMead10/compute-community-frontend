@@ -77,7 +77,8 @@ export async function getOpenRouterCompletion(
 export async function getOpenRouterStreamingCompletion(
   messages: Message[],
   onToken: (token: string) => void,
-  config: OpenRouterConfig
+  config: OpenRouterConfig,
+  signal?: AbortSignal
 ): Promise<void> {
   const { baseUrl, apiKey, modelName } = config;
 
@@ -102,6 +103,7 @@ export async function getOpenRouterStreamingCompletion(
         })),
         stream: true,
       }),
+      signal: signal,
     });
 
     if (!response.ok) {
@@ -116,33 +118,49 @@ export async function getOpenRouterStreamingCompletion(
       throw new Error('Response body is null');
     }
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n').filter(line => line.trim() !== '');
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.trim() !== '');
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6);
-          if (data === '[DONE]') continue;
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
 
-          try {
-            const parsed = JSON.parse(data);
-            const token = parsed.choices[0]?.delta?.content;
-            if (token) {
-              onToken(token);
+            try {
+              const parsed = JSON.parse(data);
+              const token = parsed.choices[0]?.delta?.content;
+              if (token) {
+                onToken(token);
+              }
+            } catch (e) {
+              console.error('Error parsing streaming response:', e);
             }
-          } catch (e) {
-            console.error('Error parsing streaming response:', e);
           }
         }
       }
+    } catch (error) {
+      // Rethrow the error unless it's an abort error
+      if (error instanceof Error && 
+          error.name !== 'AbortError' && 
+          !error.message.includes('BodyStreamBuffer was aborted')) {
+        throw error;
+      }
+      // Otherwise, it's a normal abort, which we can just ignore
+      console.log('Stream reading was aborted by user');
     }
   } catch (error) {
     console.error('Error calling OpenRouter:', error);
-    throw error;
+    // Don't rethrow AbortError since that's expected behavior when stopping
+    if (error instanceof Error && 
+        error.name !== 'AbortError' && 
+        !error.message.includes('BodyStreamBuffer was aborted')) {
+      throw error;
+    }
   }
 }
 

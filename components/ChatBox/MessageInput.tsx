@@ -197,20 +197,27 @@ export function MessageInput({
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button
-                                            type="submit"
-                                            size="sm"
-                                            className="px-2.5"
-                                            aria-label="Send message"
-                                            disabled={props.value === '' || isGenerating}
-                                        >
-                                            {isGenerating && stop ? (
+                                        {isGenerating && stop ? (
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                className="px-2.5"
+                                                aria-label="Stop generation"
+                                                onClick={stop}
+                                            >
                                                 <Square className="h-3 w-3 animate-pulse" fill="currentColor" />
-                                            ) : (
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                type="submit"
+                                                size="sm"
+                                                className="px-2.5"
+                                                aria-label="Send message"
+                                                disabled={props.value === '' || isGenerating}
+                                            >
                                                 <ArrowUp className="h-4 w-4" />
-                                            )}
-
-                                        </Button>
+                                            </Button>
+                                        )}
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p>{isGenerating && stop ? 'Stop generating' : 'Send message'}</p>
@@ -311,20 +318,29 @@ export function MessageInput({
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button
-                                            type="submit"
-                                            size="sm"
-                                            className="px-4"
-                                            aria-label="Send message"
-                                            disabled={props.value === '' || isGenerating}
-                                        >
-                                            {isGenerating && stop ? (
+                                        {isGenerating && stop ? (
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                className="px-4"
+                                                aria-label="Stop generation"
+                                                onClick={stop}
+                                            >
                                                 <Square className="h-3 w-3 mr-2 animate-pulse" fill="currentColor" />
-                                            ) : (
+                                                Stop
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                type="submit"
+                                                size="sm"
+                                                className="px-4"
+                                                aria-label="Send message"
+                                                disabled={props.value === '' || isGenerating}
+                                            >
                                                 <ArrowUp className="h-4 w-4 mr-2" />
-                                            )}
-                                            Send
-                                        </Button>
+                                                Send
+                                            </Button>
+                                        )}
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p>{isGenerating && stop ? 'Stop generating' : 'Send message'}</p>

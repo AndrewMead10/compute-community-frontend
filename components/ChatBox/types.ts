@@ -28,4 +28,5 @@ export interface ChatBoxProps {
     };
     className?: string;
     isNewChat?: boolean;
+    stop?: () => void;
 } 
