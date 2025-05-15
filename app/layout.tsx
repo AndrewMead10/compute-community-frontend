@@ -5,6 +5,7 @@ import { ChatStateProvider } from "@/components/ChatStateProvider";
 import { ThemeProvider } from "next-themes";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TopNav } from "@/components/ui/top-nav";
+import { HostProvider } from "@/components/ui/HostContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +20,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Compute Community",
   description: "Use AI models on your friends computers",
+  icons: {
+    icon: '/cc_logo.png',
+    apple: '/cc_logo.png',
+  }
 };
 
 export default function RootLayout({
@@ -53,12 +58,14 @@ export default function RootLayout({
         >
           <ChatStateProvider>
             <SidebarProvider>
-              <div className="flex h-[100dvh] flex-col w-full max-w-[100vw]">
-                <TopNav />
-                <div className="flex flex-1 overflow-hidden">
-                  {children}
+              <HostProvider>
+                <div className="flex h-[100dvh] flex-col w-full max-w-[100vw]">
+                  <TopNav />
+                  <div className="flex flex-1 overflow-hidden">
+                    {children}
+                  </div>
                 </div>
-              </div>
+              </HostProvider>
             </SidebarProvider>
           </ChatStateProvider>
         </ThemeProvider>

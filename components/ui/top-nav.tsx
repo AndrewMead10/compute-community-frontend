@@ -2,23 +2,27 @@
 
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Book, LogIn, MessageSquare } from 'lucide-react';
+import { Book, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { useHost } from './HostContext';
 
 export function TopNav() {
+    const { hostName } = useHost();
+    
     return (
-        <nav className="border-b h-14 flex items-center px-4 bg-background relative">
+        <nav className="border-b h-14 flex items-center px-4 bg-background relative md:pl-80">
             {/* Left side - mobile sidebar trigger */}
             <div className="absolute left-4">
                 <SidebarTrigger className="md:hidden" />
             </div>
 
             {/* Center - title */}
-            <div className="flex-1 flex justify-center">
-                <Link href="/">
-                    <h1 className="text-lg font-semibold">Compute Community</h1>
-                </Link>
+            <div className="flex-1 flex pl-20 md:pl-0">
+                <h1 className="text-lg font-semibold">
+                    Compute Community
+                    {hostName && <span className="text-muted-foreground"> - {hostName}</span>}
+                </h1>
             </div>
 
             {/* Right side - navigation buttons */}

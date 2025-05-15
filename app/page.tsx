@@ -13,13 +13,14 @@ import { ChatSidebar } from '@/components/ChatSidebar';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { ModelSelector } from '@/components/ModelSelector';
+import { useHost } from '@/components/ui/HostContext';
 
 const STORAGE_KEY = 'host_configurations';
 const SELECTED_HOST_KEY = 'selected_host_id';
 const SYSTEM_PROMPT_KEY = 'system_prompt';
 
 export default function Home() {
+  const { setHostName } = useHost();
   const { messages, handleSendMessage, isGenerating, handleNewChat, handleLoadChat, currentChatId, stopGeneration } = useChatState();
   const hostConfig = useHostConfig();
   const [showSettings, setShowSettings] = useState(false);
@@ -71,6 +72,11 @@ export default function Home() {
       // If there's a saved selected host that still exists, use it
       if (savedSelectedHostId && parsedHosts.some((h: HostConfiguration) => h.id === savedSelectedHostId)) {
         setSelectedHostId(savedSelectedHostId);
+        // Set host name in context
+        const selectedHost = parsedHosts.find((h: HostConfiguration) => h.id === savedSelectedHostId);
+        if (selectedHost) {
+          setHostName(selectedHost.name);
+        }
 
         // If we have a saved model selection for this host, set it as current
         if (savedUserModelSelections) {
@@ -83,6 +89,8 @@ export default function Home() {
       } else if (parsedHosts.length > 0) {
         // Otherwise, select the first host
         setSelectedHostId(parsedHosts[0].id);
+        // Set host name in context
+        setHostName(parsedHosts[0].name);
         localStorage.setItem(SELECTED_HOST_KEY, parsedHosts[0].id);
       }
     } else {
@@ -100,6 +108,7 @@ export default function Home() {
         };
         setHosts([migratedHost]);
         setSelectedHostId(migratedHost.id);
+        setHostName(migratedHost.name);
 
         // Save in new format and remove old keys
         localStorage.setItem(STORAGE_KEY, JSON.stringify([migratedHost]));
@@ -108,7 +117,7 @@ export default function Home() {
         localStorage.removeItem('openrouter_api_key');
       }
     }
-  }, []);
+  }, [setHostName]);
 
   // Function to check health of all configured hosts
   const checkAllHosts = async () => {
@@ -205,6 +214,11 @@ export default function Home() {
     setHostToEdit(undefined);
     setShowHostDialog(false);
 
+    // Update host name in context if this is the selected host
+    if (updatedHost.id === selectedHostId) {
+      setHostName(updatedHost.name);
+    }
+
     // Check health of updated host
     checkHostHealth(updatedHost.baseUrl).then(status => {
       setHostStatus(prev => ({ ...prev, [updatedHost.id]: status }));
@@ -236,10 +250,18 @@ export default function Home() {
     if (id === selectedHostId) {
       const newSelectedId = updatedHosts.length > 0 ? updatedHosts[0].id : null;
       setSelectedHostId(newSelectedId);
+      
       if (newSelectedId) {
         localStorage.setItem(SELECTED_HOST_KEY, newSelectedId);
+        // Set new host name in context
+        const newSelectedHost = updatedHosts.find(h => h.id === newSelectedId);
+        if (newSelectedHost) {
+          setHostName(newSelectedHost.name);
+        }
       } else {
         localStorage.removeItem(SELECTED_HOST_KEY);
+        // Clear host name in context
+        setHostName(null);
       }
     }
 
@@ -251,6 +273,12 @@ export default function Home() {
     setSelectedHostId(id);
     localStorage.setItem(SELECTED_HOST_KEY, id);
 
+    // Set host name in context
+    const selectedHost = hosts.find(h => h.id === id);
+    if (selectedHost) {
+      setHostName(selectedHost.name);
+    }
+
     // Check if we have a saved model for this host
     if (userModelSelections[id]) {
       setCurrentModel(userModelSelections[id]);
@@ -261,7 +289,6 @@ export default function Home() {
     }
 
     // Check the health of the selected host
-    const selectedHost = hosts.find(h => h.id === id);
     if (selectedHost) {
       checkHostHealth(selectedHost.baseUrl).then(status => {
         setHostStatus(prev => ({ ...prev, [id]: status }));
